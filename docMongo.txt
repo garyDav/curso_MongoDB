@@ -1,0 +1,180 @@
+CURSO DE MONGODB: resumen (https://joaquinaraujo.github.io/mongodb-redis/)
+Instalacion Ubuntu.
+https://platzi.com/clases/mongodb-redis/concepto/mongodb/instalacion-de-mongodb-en-linux/material/
+Ejecutar Mongo DB
+$ sudo systemctl start mongod
+Detener
+$ sudo systemctl stop mongod
+Verificar la ejecución de MongoDB
+$ cat /var/log/mongodb/mongod.log
+
+Instalacion Windows.
+https://platzi.com/clases/mongodb-redis/concepto/mongodb/instalacion-de-mongodb-en-windows/material/
+
+Instalacion en Mac.
+https://platzi.com/clases/mongodb-redis/concepto/mongodb/instalacion-de-mongodb-en-mac/material/
+Para poderlo instalar mongo en mi computadora con MAC utilice lo siguiente:
+https://treehouse.github.io/installation-guides/mac/mongo-mac.html
+En mi caso use la sección de: Install and Run MongoDB by Downloading it Manually
+ya que con homebrew tuve un error con Xcode
+
+Jesus Conde & Yohan Graterol (Platzi).
+//instalar con NPM
+1. como instalar paquetes con npm: sudo npm install -g <paquete unique name>  <----- "-g" instalar globalmente
+2. ejemplo de express: sudo npm install express@2.x
+3. desinstalar mediante el uso: sudo npm uninstall -g <paquete unique name> <----- para eliminar paquetes instalados globlamente aumentas "-g"
+4. para actualizar paquetes: sudo npm update <paqkage unique name>
+
+//package.json para MEAN01
+{
+	"name": "MEAN",
+	"version": "0.0.3",
+	"dependencies": {
+		"express": "~4.8.8"
+	}
+}
+sudo npm install
+//mongoDB
+Configuración.
+mongod --dbpath ~/mongodb_datos --> redirecciona la ruta donde se almacena las bases de datos
+mongod -help --> comandos de configuracion de mongod
+	--dbpath 		Ruta al directorio en el que se almacenan datos
+	--bind_ip		Direccin IP que el servidor mongod escuchará, por defecto es 127.0.0.1
+	--port			Direccion de puerto en el escuchará mongod, por defecto es 27017
+	--logpath		Ruta completa hasta el archivo de log en el que los mensajes de MongoDB serán escritos.
+	--logappend		Si configuramos esta opción como true, añade los mensajes al final del archivo log. Configurado a false sobrescribe el log.
+
+
+use mean   --> crear o acceder a una base de datos ya existente
+show dbs   --> aparecen las base de datos creadas
+db.noticias.insert({"titulo":"Primera Noticia", "usuario":"jesus"})   --> insertar en una coleccion
+db.noticias.find()  --> ver que elementos se insertaron en la coleccion
+show collections    --> ver todas las colecciones.
+db.noticias.drop()  --> eliminar una coleccion.
+
+
+> use cursomongo // Ingresa a la base de datos aunque no este creada
+Crear colecciones.
+// Implícita.
+> db.curso.insert({"name":"Platzi"}) // Inserta documento, crea la colección y la base de datos si no existe
+// Explícita.
+> db.createCollection("curso1")
+MongoDB puede crear variables
+> documento1 = {
+    "id": "bitcoin",
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "rank": "1",
+    "price_usd": "3917.6",
+    "price_btc": "1.0",
+    "24h_volumen_usd": "1059810000.0",
+    "market_cap_usd": "64987597300.0",
+    "avaible_supply": "16588625.0",
+    "total_suply": 16588625,
+    "last_updated": "1506462556",
+    "hash_ticker": "f92f3a0ee648f36880a482099cc66fc4afcd3f1c"
+}
+> documento2 = {
+    "id": "bitcoin",
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "rank": "1",
+    "price_usd": "3917.6",
+    "price_btc": "1.0",
+    "24h_volumen_usd": "1059810000.0",
+    "market_cap_usd": "64987597300.0",
+    "avaible_supply": "16588625.0",
+    "total_suply": 16588625,
+    "last_updated": "1506462558",
+    "hash_ticker": "f92f3a0ee648f36880a482099cc66fc4afcd3f1c"
+}
+
+//CRUD de mongoDB
+C (create).
+a). db.noticias.insert({"titulo":"Primera Noticia", "usuario":"jesus"})   --> insertar en una coleccion.
+b). db.noticias.update({
+...   "usuario": "ester"
+... }, {
+...   "titulo": "Mi noticia",
+...   "usuario": "ester"
+... }, {
+...   upsert:true
+... })  --> metodo upsert que inserta si no lo encuentra, sirve para actualizar e insertar.
+c). db.noticias.save({"titulo":"Mi Segunda Noticia","usuario":"ester"}) --> al igual que insert
+
+d). > db.ticker.insert(documentos1) --> inserta un documento
+e). > db.ticker.insertOne(documentos2) --> inserta un documento y te devuelve "insertedId"
+f). > db.ticker.insertMany([documento1,documento2]) -- inserta varios documentos y devuelve "insertedIds"
+
+R (read).
+db.noticias.find() o db.noticias.find({})  --> recupera todos los documentos
+db.noticias.find({"usuario":"ester"})      --> recupera todos los documentos que el usuario es ester.
+db.noticias.find({"usuario":{$in:["ester","jesus"]}})  --> operador in que permite añadir mas de un valor
+db.noticias.find({"usuario":"jesus","numeroComentarios":{$gt:10}})  --> uso del operador AND, numero de comentarios como mínimo ($gt) 10
+db.noticias.find({$or:[{"usuario":"ester"},{"usuario":"jesus"}]})   --> uso del operador OR
+
+> db.ticker.findOne() --> recupera un documento
+> db.ticker.find({"last_updated": "1506462558","avaible_supply":"16588625.0"}).pretty() --> recupera los documentos que cumplan con las dos condiciones (AND), la funcion pretty() tabula los datos para una mejor vista
+> db.ticker.find().limit(1).pretty() --> simulando findOne(), limita a un documento y tabula los datos
+> db.ticker.find({"last_updated": {$gt: "1506462556"}}).pretty() --> $gt significa (mayor que), $gte (mayor igual que)
+> db.ticker.find({"last_updated": {$lt: "1506462556"}}).pretty() --> $lt significa (menor que), $lte (menor igual que)
+> db.ticker.find({"last_updated": {$lte: "1506462556"}}).limit(4).pretty() --> menor igual a, limitado a cuatro
+> db.ticker.find({"last_updated": {$gte: "1506462556"}}, {_id: 0, price_btc: 0, rank: 0}).limit(4).pretty() --> mayor igual a, cero indica que NO quiero mostrar esos campos, si colocamos uno SI quiere mostrar esos datos: NOTA: NO PODEMOS INTERCALAR EL CERO Y EL UNO A LA VEZ, limitado a cuatro
+
+U (update).
+db.noticias.update({
+...   "usuario": "jesus"
+... }, {
+...   $set: {
+...     "titulo": "Mi Primera Noticia"
+...   }
+... });   --> Modifica un documento por defecto
+db.noticias.update({
+...   "usuario": "ester"
+... }, {
+...   $set: {
+...     "usuario": "esther"
+...   }
+... }, {
+...   multi:true  --> Modifica mas de un valor
+... })
+db.noticias.save({
+...   "_id": ObjectId("55e62ff738bb87f1dbb5d02a"),     --> este Id coincide con uno de los registros entonces lo actualizara si no lo encuentra lo insertará
+...   "titulo": "Primera Noticia",
+...   "usuario": "jesus"
+... });
+
+> documento1.hash_ticker = 1234 --> modificamos la variable
+> db.ticker.save(documento1) --> modifica si existe, caso contrario lo inserta
+> db.ticker.update({_id: ObjectId("5ab7818e9d7adba786ba62c8")}, documento1)
+> db.ticker.save({_id: ObjectId("5ab7818e9d7adba786ba62c8"),"hash_ticker": "1234567"}) --> borra todos los datos y solo modifica y guarda esos dos campos
+> db.coleccion.updateOne( --> solo un documento
+		<filtro>,
+		<modificación a aplicar>,
+	)
+> db.coleccion.updateMany( --> para vários documentos que cumplan con el filtro
+	   <filtro>,
+	   <modificación a aplicar>,
+	)
+
+Utilizando el método update, en el primer parámetro indicamos que condiciones debe cumplir usando el operador OR, el segundo parámetro indicamos que campos cambiar, utilizando la propiedad set sólo especificamos los campos a cambiar sin perder los demás datos, y si queremos modificar más de un valor lo especificamos en el tercer parámetro colocando multi en true
+
+db.ticker.update(
+		{
+			$or:[
+				{"last_updated": "1506462556"},
+				{"last_updated": "1506462557"}
+			]
+		},
+		{
+      $set: {
+        "hash_ticker": "123456"
+      }
+    }, {
+      multi:true
+    })
+
+D (delete).
+db.novedades.drop({});   ---> elimina la coleccion novedades y todos los documentos en el.
+db.novedades.remove({}); ---> elimina todos los documentos de la coleccion novedades (pero no la coleccion).
+db.noticias.remove({"usuario": "ester"},true); --> elimina solo un documento del usuario ester
